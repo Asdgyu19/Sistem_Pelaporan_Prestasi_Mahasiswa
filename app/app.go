@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"prestasi-mahasiswa/config"
 	"prestasi-mahasiswa/database"
+	"prestasi-mahasiswa/helper"
 	"prestasi-mahasiswa/route"
+	"prestasi-mahasiswa/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -83,8 +85,20 @@ func (a *App) initMiddleware() {
 }
 
 func (a *App) initRoutes() {
+	// Initialize services
+	loginService := service.NewLoginService(a.DB)
+	registerService := service.NewRegisterService(a.DB)
+	achievementService := service.NewAchievementService(a.DB, a.MongoDB)
+	fileService := service.NewFileService(a.MongoDB)
+
+	// Initialize helpers
+	healthHelper := helper.NewHealthHelper(a.DB, a.MongoDB)
+	authHelper := helper.NewAuthHelper(loginService, registerService)
+	achievementHelper := helper.NewAchievementHelper(achievementService, fileService)
+	userHelper := helper.NewUserHelper()
+
 	// Setup all routes using separate route files
-	route.SetupRoutes(a.Router, a.DB, a.MongoDB)
+	route.SetupRoutes(a.Router, healthHelper, authHelper, achievementHelper, userHelper)
 }
 
 func (a *App) Run() error {

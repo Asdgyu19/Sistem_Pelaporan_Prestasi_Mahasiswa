@@ -1,27 +1,17 @@
 package route
 
 import (
-	"database/sql"
-	"prestasi-mahasiswa/database"
 	"prestasi-mahasiswa/helper"
-	"prestasi-mahasiswa/service"
 
 	"github.com/gin-gonic/gin"
 )
 
 // SetupRoutes configures all application routes
-func SetupRoutes(router *gin.Engine, db *sql.DB, mongodb *database.MongoDB) {
-	// Initialize services
-	loginService := service.NewLoginService(db)
-	registerService := service.NewRegisterService(db)
-	achievementService := service.NewAchievementService(db, mongodb)
-	fileService := service.NewFileService(mongodb)
-
-	// Initialize helpers
-	healthHelper := helper.NewHealthHelper(db, mongodb)
-	authHelper := helper.NewAuthHelper(loginService, registerService)
-	achievementHelper := helper.NewAchievementHelper(achievementService, fileService)
-	userHelper := helper.NewUserHelper()
+func SetupRoutes(router *gin.Engine,
+	healthHelper *helper.HealthHelper,
+	authHelper *helper.AuthHelper,
+	achievementHelper *helper.AchievementHelper,
+	userHelper *helper.UserHelper) {
 
 	// Root route
 	router.GET("/", func(c *gin.Context) {
