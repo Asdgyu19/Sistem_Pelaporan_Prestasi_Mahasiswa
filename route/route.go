@@ -2,12 +2,14 @@ package route
 
 import (
 	"prestasi-mahasiswa/helper"
+	"prestasi-mahasiswa/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
 // SetupRoutes configures all application routes
 func SetupRoutes(router *gin.Engine,
+	jwtSecret string,
 	healthHelper *helper.HealthHelper,
 	authHelper *helper.AuthHelper,
 	achievementHelper *helper.AchievementHelper,
@@ -28,14 +30,19 @@ func SetupRoutes(router *gin.Engine,
 	// API v1 routes group
 	v1 := router.Group("/api/v1")
 	{
-		// Setup auth routes
+		// Public routes (no authentication required)
 		setupAuthRoutes(v1, authHelper)
 
-		// Setup achievement routes
-		setupAchievementRoutes(v1, achievementHelper)
+		// Protected routes (authentication required)
+		protected := v1.Group("")
+		protected.Use(middleware.AuthMiddleware(jwtSecret))
+		{
+			// Setup achievement routes (role-based access)
+			setupAchievementRoutes(protected, achievementHelper)
 
-		// Setup user routes
-		setupUserRoutes(v1, userHelper)
+			// Setup user routes (role-based access)
+			setupUserRoutes(protected, userHelper)
+		}
 	}
 }
 
@@ -49,29 +56,35 @@ func setupAuthRoutes(rg *gin.RouterGroup, authHelper *helper.AuthHelper) {
 	}
 }
 
-// setupAchievementRoutes configures achievement routes
+// setupAchievementRoutes configures achievement routes with role-based access
 func setupAchievementRoutes(rg *gin.RouterGroup, achievementHelper *helper.AchievementHelper) {
 	achievements := rg.Group("/achievements")
 	{
-		achievements.GET("/", achievementHelper.GetAchievements)
-		achievements.POST("/", achievementHelper.CreateAchievement)
-		achievements.GET("/:id", achievementHelper.GetAchievement)
-		achievements.PUT("/:id", achievementHelper.UpdateAchievement)
-		achievements.DELETE("/:id", achievementHelper.DeleteAchievement)
+		// All authenticated users can view achievements
+		achievements.GET("/", middleware.RequireAnyAuthenticated(), achievementHelper.GetAchievements)
+		achievements.GET("/:id", middleware.RequireAnyAuthenticated(), achievementHelper.GetAchievement)
+		achievements.GET("/:id/files", middleware.RequireAnyAuthenticated(), achievementHelper.GetFiles)
 
-		// File upload for achievements
-		achievements.POST("/:id/files", achievementHelper.UploadFile)
-		achievements.GET("/:id/files", achievementHelper.GetFiles)
-		achievements.DELETE("/:id/files/:fileId", achievementHelper.DeleteFile)
+		// Only mahasiswa can create and manage their own achievements
+		achievements.POST("/", middleware.RequireMahasiswa(), achievementHelper.CreateAchievement)
+		achievements.PUT("/:id", middleware.RequireMahasiswa(), achievementHelper.UpdateAchievement)
+		achievements.DELETE("/:id", middleware.RequireMahasiswa(), achievementHelper.DeleteAchievement)
+
+		// File management - mahasiswa can upload, dosen/admin can view
+		achievements.POST("/:id/files", middleware.RequireMahasiswa(), achievementHelper.UploadFile)
+		achievements.DELETE("/:id/files/:fileId", middleware.RequireMahasiswa(), achievementHelper.DeleteFile)
 	}
 }
 
-// setupUserRoutes configures user routes
+// setupUserRoutes configures user routes with role-based access
 func setupUserRoutes(rg *gin.RouterGroup, userHelper *helper.UserHelper) {
 	users := rg.Group("/users")
 	{
-		users.GET("/profile", userHelper.GetProfile)
-		users.PUT("/profile", userHelper.UpdateProfile)
-		users.GET("/", userHelper.GetUsers) // For admin
+		// All authenticated users can view and update their own profile
+		users.GET("/profile", middleware.RequireAnyAuthenticated(), userHelper.GetProfile)
+		users.PUT("/profile", middleware.RequireAnyAuthenticated(), userHelper.UpdateProfile)
+
+		// Only admin can view all users
+		users.GET("/", middleware.RequireAdmin(), userHelper.GetUsers)
 	}
 }

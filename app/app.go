@@ -5,6 +5,7 @@ import (
 	"prestasi-mahasiswa/config"
 	"prestasi-mahasiswa/database"
 	"prestasi-mahasiswa/helper"
+	"prestasi-mahasiswa/middleware"
 	"prestasi-mahasiswa/route"
 	"prestasi-mahasiswa/service"
 
@@ -65,23 +66,10 @@ func (a *App) initUsecases() {
 }
 
 func (a *App) initMiddleware() {
-	// CORS Middleware
-	a.Router.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
-
-		c.Next()
-	})
-
-	// Request Logger
-	a.Router.Use(gin.Logger())
-	a.Router.Use(gin.Recovery())
+	// General middleware
+	a.Router.Use(middleware.CORS())
+	a.Router.Use(middleware.RequestLogger())
+	a.Router.Use(middleware.Recovery())
 }
 
 func (a *App) initRoutes() {
@@ -97,8 +85,8 @@ func (a *App) initRoutes() {
 	achievementHelper := helper.NewAchievementHelper(achievementService, fileService)
 	userHelper := helper.NewUserHelper()
 
-	// Setup all routes using separate route files
-	route.SetupRoutes(a.Router, healthHelper, authHelper, achievementHelper, userHelper)
+	// Setup all routes using separate route files with JWT secret
+	route.SetupRoutes(a.Router, a.Config.JWT.Secret, healthHelper, authHelper, achievementHelper, userHelper)
 }
 
 func (a *App) Run() error {
