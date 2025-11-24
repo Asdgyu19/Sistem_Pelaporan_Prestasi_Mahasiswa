@@ -11,10 +11,15 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password TEXT NOT NULL,
     role VARCHAR(50) NOT NULL CHECK (role IN ('mahasiswa', 'dosen_wali', 'admin')),
+    advisor_id UUID, -- For mahasiswa: reference to dosen_wali
+    profile_data JSONB, -- Store additional profile information
     is_active BOOLEAN DEFAULT TRUE,
     is_deleted BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Foreign key constraint for advisor
+    CONSTRAINT fk_users_advisor FOREIGN KEY (advisor_id) REFERENCES users(id)
 );
 
 -- Create achievements table
@@ -42,6 +47,7 @@ CREATE TABLE IF NOT EXISTS achievements (
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_nim ON users(nim);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_users_advisor ON users(advisor_id);
 CREATE INDEX IF NOT EXISTS idx_users_active_deleted ON users(is_active, is_deleted);
 
 CREATE INDEX IF NOT EXISTS idx_achievements_mahasiswa ON achievements(mahasiswa_id);

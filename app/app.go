@@ -78,15 +78,17 @@ func (a *App) initRoutes() {
 	registerService := service.NewRegisterService(a.DB)
 	achievementService := service.NewAchievementService(a.DB, a.MongoDB)
 	fileService := service.NewFileService(a.MongoDB)
+	userService := service.NewUserService(a.DB) // Add user service
 
 	// Initialize helpers
 	healthHelper := helper.NewHealthHelper(a.DB, a.MongoDB)
 	authHelper := helper.NewAuthHelper(loginService, registerService)
 	achievementHelper := helper.NewAchievementHelper(achievementService, fileService)
-	userHelper := helper.NewUserHelper()
+	userHelper := helper.NewUserHelper()                      // Basic user profile helper
+	adminUserHelper := helper.NewAdminUserHelper(userService) // Admin user management helper
 
 	// Setup all routes using separate route files with JWT secret
-	route.SetupRoutes(a.Router, a.Config.JWT.Secret, healthHelper, authHelper, achievementHelper, userHelper)
+	route.SetupRoutes(a.Router, a.Config.JWT.Secret, healthHelper, authHelper, achievementHelper, userHelper, adminUserHelper)
 }
 
 func (a *App) Run() error {

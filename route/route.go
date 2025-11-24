@@ -13,7 +13,8 @@ func SetupRoutes(router *gin.Engine,
 	healthHelper *helper.HealthHelper,
 	authHelper *helper.AuthHelper,
 	achievementHelper *helper.AchievementHelper,
-	userHelper *helper.UserHelper) {
+	userHelper *helper.UserHelper,
+	adminUserHelper *helper.AdminUserHelper) {
 
 	// Root route
 	router.GET("/", func(c *gin.Context) {
@@ -42,6 +43,9 @@ func SetupRoutes(router *gin.Engine,
 
 			// Setup user routes (role-based access)
 			setupUserRoutes(protected, userHelper)
+
+			// Setup admin user management routes
+			setupAdminUserRoutes(protected, adminUserHelper)
 		}
 	}
 }
@@ -91,5 +95,33 @@ func setupUserRoutes(rg *gin.RouterGroup, userHelper *helper.UserHelper) {
 
 		// Only admin can view all users
 		users.GET("/", middleware.RequireAdmin(), userHelper.GetUsers)
+	}
+}
+
+// setupAdminUserRoutes configures admin user management routes
+func setupAdminUserRoutes(rg *gin.RouterGroup, adminUserHelper *helper.AdminUserHelper) {
+	admin := rg.Group("/admin")
+	admin.Use(middleware.RequireAdmin()) // All admin routes require admin role
+	{
+		// User management routes
+		userMgmt := admin.Group("/users")
+		{
+			// Basic user CRUD
+			userMgmt.GET("/", adminUserHelper.GetAllUsers)      // GET /api/v1/admin/users?role=mahasiswa&search=aryo
+			userMgmt.GET("/:id", adminUserHelper.GetUserByID)   // GET /api/v1/admin/users/{id}
+			userMgmt.POST("/", adminUserHelper.CreateUser)      // POST /api/v1/admin/users
+			userMgmt.PUT("/:id", adminUserHelper.UpdateUser)    // PUT /api/v1/admin/users/{id}
+			userMgmt.DELETE("/:id", adminUserHelper.DeleteUser) // DELETE /api/v1/admin/users/{id}
+
+			// Role management
+			userMgmt.PUT("/:id/role", adminUserHelper.ChangeUserRole)     // PUT /api/v1/admin/users/{id}/role
+			userMgmt.PUT("/:id/status", adminUserHelper.ToggleUserStatus) // PUT /api/v1/admin/users/{id}/status
+
+			// Advisor management
+			userMgmt.POST("/assign-advisor", adminUserHelper.AssignAdvisor)                      // POST /api/v1/admin/users/assign-advisor
+			userMgmt.DELETE("/:id/advisor", adminUserHelper.RemoveAdvisor)                       // DELETE /api/v1/admin/users/{id}/advisor
+			userMgmt.GET("/advisors", adminUserHelper.GetAvailableAdvisors)                      // GET /api/v1/admin/users/advisors
+			userMgmt.GET("/advisors/:advisor_id/students", adminUserHelper.GetStudentsByAdvisor) // GET /api/v1/admin/users/advisors/{id}/students
+		}
 	}
 }
