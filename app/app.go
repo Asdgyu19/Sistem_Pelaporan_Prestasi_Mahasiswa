@@ -73,8 +73,8 @@ func (a *App) initMiddleware() {
 }
 
 func (a *App) initRoutes() {
-	// Initialize services
-	loginService := service.NewLoginService(a.DB)
+	// Initialize services with JWT configuration
+	loginService := service.NewLoginService(a.DB, a.Config.JWT.Secret, a.Config.JWT.ExpireHours)
 	registerService := service.NewRegisterService(a.DB)
 	achievementService := service.NewAchievementService(a.DB, a.MongoDB)
 	fileService := service.NewFileService(a.MongoDB)

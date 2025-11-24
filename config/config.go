@@ -53,11 +53,8 @@ type CORSConfig struct {
 }
 
 func LoadConfig() (*Config, error) {
-	// Load .env file
 	err := godotenv.Load()
 	if err != nil {
-		// Don't return error if .env file doesn't exist in production
-		// Just use environment variables
 	}
 
 	maxFileSize, _ := strconv.ParseInt(getEnv("MAX_FILE_SIZE", "5242880"), 10, 64)

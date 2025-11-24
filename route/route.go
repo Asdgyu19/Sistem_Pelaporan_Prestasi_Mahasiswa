@@ -60,7 +60,7 @@ func setupAuthRoutes(rg *gin.RouterGroup, authHelper *helper.AuthHelper) {
 func setupAchievementRoutes(rg *gin.RouterGroup, achievementHelper *helper.AchievementHelper) {
 	achievements := rg.Group("/achievements")
 	{
-		// All authenticated users can view achievements
+		// All authenticated users can view achievements (with role-based filtering in helper)
 		achievements.GET("/", middleware.RequireAnyAuthenticated(), achievementHelper.GetAchievements)
 		achievements.GET("/:id", middleware.RequireAnyAuthenticated(), achievementHelper.GetAchievement)
 		achievements.GET("/:id/files", middleware.RequireAnyAuthenticated(), achievementHelper.GetFiles)
@@ -70,7 +70,12 @@ func setupAchievementRoutes(rg *gin.RouterGroup, achievementHelper *helper.Achie
 		achievements.PUT("/:id", middleware.RequireMahasiswa(), achievementHelper.UpdateAchievement)
 		achievements.DELETE("/:id", middleware.RequireMahasiswa(), achievementHelper.DeleteAchievement)
 
-		// File management - mahasiswa can upload, dosen/admin can view
+		// Achievement workflow - mahasiswa submits, dosen/admin verify/reject
+		achievements.POST("/:id/submit", middleware.RequireMahasiswa(), achievementHelper.SubmitAchievement)
+		achievements.POST("/:id/verify", middleware.RequireDosenOrAdmin(), achievementHelper.VerifyAchievement)
+		achievements.POST("/:id/reject", middleware.RequireDosenOrAdmin(), achievementHelper.RejectAchievement)
+
+		// File management - mahasiswa can upload, all can view
 		achievements.POST("/:id/files", middleware.RequireMahasiswa(), achievementHelper.UploadFile)
 		achievements.DELETE("/:id/files/:fileId", middleware.RequireMahasiswa(), achievementHelper.DeleteFile)
 	}
