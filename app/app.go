@@ -78,11 +78,12 @@ func (a *App) initRoutes() {
 	registerService := service.NewRegisterService(a.DB)
 	achievementService := service.NewAchievementService(a.DB, a.MongoDB)
 	fileService := service.NewFileService(a.MongoDB)
-	userService := service.NewUserService(a.DB) // Add user service
+	userService := service.NewUserService(a.DB)                                       // Add user service
+	refreshTokenService := service.NewRefreshTokenService(a.DB, loginService.JWTUtil) // Add refresh token service
 
 	// Initialize helpers
 	healthHelper := helper.NewHealthHelper(a.DB, a.MongoDB)
-	authHelper := helper.NewAuthHelper(loginService, registerService)
+	authHelper := helper.NewAuthHelper(loginService, registerService, refreshTokenService)
 	achievementHelper := helper.NewAchievementHelper(achievementService, fileService)
 	userHelper := helper.NewUserHelper()                      // Basic user profile helper
 	adminUserHelper := helper.NewAdminUserHelper(userService) // Admin user management helper

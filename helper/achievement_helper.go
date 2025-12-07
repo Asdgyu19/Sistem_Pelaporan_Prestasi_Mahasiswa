@@ -1,6 +1,8 @@
 package helper
 
 import (
+	"fmt"
+	"io"
 	"prestasi-mahasiswa/service"
 	"time"
 
@@ -168,41 +170,251 @@ func (h *AchievementHelper) DeleteAchievement(c *gin.Context) {
 }
 
 func (h *AchievementHelper) UploadFile(c *gin.Context) {
-	id := c.Param("id")
-	c.JSON(200, gin.H{
-		"message": "Upload file for achievement ID: " + id,
-		"status":  "not_implemented",
+	achievementID := c.Param("id")
+	if achievementID == "" {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Achievement ID is required",
+		})
+		return
+	}
+
+	// Check if achievement exists and user has access
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{
+			"success": false,
+			"message": "User ID not found",
+		})
+		return
+	}
+
+	userRole, _ := c.Get("user_role")
+
+	// Verify achievement exists and user can upload to it
+	achievement, err := h.AchievementService.GetAchievementByID(achievementID)
+	if err != nil {
+		c.JSON(404, gin.H{
+			"success": false,
+			"message": "Achievement not found",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// Check access rights - mahasiswa can only upload to their own achievements
+	if userRole.(string) == "mahasiswa" && achievement.MahasiswaID != userID.(string) {
+		c.JSON(403, gin.H{
+			"success": false,
+			"message": "Access denied: You can only upload files to your own achievements",
+		})
+		return
+	}
+
+	// Parse multipart form
+	err = c.Request.ParseMultipartForm(10 << 20) // 10MB max
+	if err != nil {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Failed to parse multipart form",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// Get file from form
+	file, fileHeader, err := c.Request.FormFile("file")
+	if err != nil {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "File is required",
+			"error":   err.Error(),
+		})
+		return
+	}
+	defer file.Close()
+
+	// Upload file using service
+	uploadReq := service.UploadFileRequest{
+		File:          file,
+		FileHeader:    fileHeader,
+		AchievementID: achievementID,
+		UploadedBy:    userID.(string),
+	}
+
+	fileData, err := h.FileService.UploadFile(uploadReq)
+	if err != nil {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Failed to upload file",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(201, gin.H{
+		"success": true,
+		"message": "File uploaded successfully",
+		"data":    fileData,
 	})
 }
 
 func (h *AchievementHelper) GetFiles(c *gin.Context) {
-	id := c.Param("id")
-	files, err := h.FileService.GetFiles(id)
+	achievementID := c.Param("id")
+	if achievementID == "" {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Achievement ID is required",
+		})
+		return
+	}
+
+	// Check if user has access to this achievement
+	userID, _ := c.Get("user_id")
+	userRole, _ := c.Get("user_role")
+
+	// Verify achievement exists
+	achievement, err := h.AchievementService.GetAchievementByID(achievementID)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		c.JSON(404, gin.H{
+			"success": false,
+			"message": "Achievement not found",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// Check access rights
+	if userRole.(string) == "mahasiswa" && achievement.MahasiswaID != userID.(string) {
+		c.JSON(403, gin.H{
+			"success": false,
+			"message": "Access denied: You can only view files from your own achievements",
+		})
+		return
+	}
+
+	files, err := h.FileService.GetFiles(achievementID)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to get files",
+			"error":   err.Error(),
+		})
 		return
 	}
 
 	c.JSON(200, gin.H{
-		"message": "Get files for achievement ID: " + id,
-		"data":    files,
-		"status":  "success",
+		"success": true,
+		"message": "Files retrieved successfully",
+		"data": gin.H{
+			"files": files,
+			"total": len(files),
+		},
 	})
 }
 
 func (h *AchievementHelper) DeleteFile(c *gin.Context) {
-	id := c.Param("id")
-	fileId := c.Param("fileId")
+	achievementID := c.Param("id")
+	fileID := c.Param("fileId")
 
-	if err := h.FileService.DeleteFile(id, fileId); err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+	if achievementID == "" || fileID == "" {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Achievement ID and File ID are required",
+		})
+		return
+	}
+
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{
+			"success": false,
+			"message": "User ID not found",
+		})
+		return
+	}
+
+	// Validate file access before deletion
+	userRole, _ := c.Get("user_role")
+	err := h.FileService.ValidateFileAccess(fileID, userID.(string), userRole.(string))
+	if err != nil {
+		c.JSON(403, gin.H{
+			"success": false,
+			"message": "Access denied",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// Delete file
+	err = h.FileService.DeleteFile(fileID, userID.(string))
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to delete file",
+			"error":   err.Error(),
+		})
 		return
 	}
 
 	c.JSON(200, gin.H{
+		"success": true,
 		"message": "File deleted successfully",
-		"status":  "success",
 	})
+}
+
+// DownloadFile streams file content for download
+func (h *AchievementHelper) DownloadFile(c *gin.Context) {
+	achievementID := c.Param("id")
+	fileID := c.Param("fileId")
+
+	if achievementID == "" || fileID == "" {
+		c.JSON(400, gin.H{
+			"success": false,
+			"message": "Achievement ID and File ID are required",
+		})
+		return
+	}
+
+	// Validate file access
+	userID, _ := c.Get("user_id")
+	userRole, _ := c.Get("user_role")
+	err := h.FileService.ValidateFileAccess(fileID, userID.(string), userRole.(string))
+	if err != nil {
+		c.JSON(403, gin.H{
+			"success": false,
+			"message": "Access denied",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// Download file
+	fileStream, fileData, err := h.FileService.DownloadFile(fileID)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to download file",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	// Set appropriate headers for file download
+	c.Header("Content-Type", fileData.ContentType)
+	c.Header("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, fileData.Filename))
+	c.Header("Content-Length", fmt.Sprintf("%d", fileData.Size))
+
+	// Stream file content
+	_, err = io.Copy(c.Writer, fileStream)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"success": false,
+			"message": "Failed to stream file",
+			"error":   err.Error(),
+		})
+		return
+	}
 }
 
 // SubmitAchievement submits achievement for verification (mahasiswa only)

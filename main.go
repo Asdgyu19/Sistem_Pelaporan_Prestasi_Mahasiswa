@@ -23,6 +23,13 @@ func main() {
 	defer db.Close()
 	log.Println("✅ PostgreSQL connected successfully!")
 
+	// Run database migrations (commented out due to permission issues)
+	// log.Println("🔄 Running database migrations...")
+	// err = database.RunMigrations(db, "./database/migrations")
+	// if err != nil {
+	// 	log.Fatal("Failed to run migrations:", err)
+	// }
+
 	log.Println("🔌 Connecting to MongoDB...")
 	mongodb, err := database.InitMongoDB(cfg)
 	if err != nil {

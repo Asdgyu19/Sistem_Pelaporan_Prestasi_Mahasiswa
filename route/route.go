@@ -54,9 +54,16 @@ func SetupRoutes(router *gin.Engine,
 func setupAuthRoutes(rg *gin.RouterGroup, authHelper *helper.AuthHelper) {
 	auth := rg.Group("/auth")
 	{
+		// Public authentication routes
 		auth.POST("/login", authHelper.Login)
 		auth.POST("/register", authHelper.Register)
-		auth.POST("/logout", authHelper.Logout)
+		auth.POST("/refresh", authHelper.RefreshToken)      // Refresh access token using refresh token
+		auth.POST("/revoke", authHelper.RevokeRefreshToken) // Revoke specific refresh token
+
+		// Protected authentication routes (require valid access token)
+		auth.POST("/logout", authHelper.Logout)               // Logout current session and revoke all tokens
+		auth.POST("/logout-all", authHelper.LogoutAllDevices) // Logout from all devices
+		auth.GET("/tokens", authHelper.GetActiveTokens)       // Get list of active refresh tokens
 	}
 }
 
@@ -79,8 +86,9 @@ func setupAchievementRoutes(rg *gin.RouterGroup, achievementHelper *helper.Achie
 		achievements.POST("/:id/verify", middleware.RequireDosenOrAdmin(), achievementHelper.VerifyAchievement)
 		achievements.POST("/:id/reject", middleware.RequireDosenOrAdmin(), achievementHelper.RejectAchievement)
 
-		// File management - mahasiswa can upload, all can view
+		// File management - mahasiswa can upload, all can view/download
 		achievements.POST("/:id/files", middleware.RequireMahasiswa(), achievementHelper.UploadFile)
+		achievements.GET("/:id/files/:fileId/download", middleware.RequireAnyAuthenticated(), achievementHelper.DownloadFile)
 		achievements.DELETE("/:id/files/:fileId", middleware.RequireMahasiswa(), achievementHelper.DeleteFile)
 	}
 }
