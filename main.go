@@ -1,3 +1,18 @@
+// @title Sistem Pelaporan Prestasi Mahasiswa API
+// @version 1.0.0
+// @description Backend API untuk Student Achievement Reporting System dengan JWT authentication dan role-based access control
+// @termsOfService http://swagger.io/terms/
+// @contact.name API Support
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:8080
+// @basePath /api/v1
+// @schemes http https
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description "Bearer <token>"
+
 package main
 
 import (
@@ -5,6 +20,8 @@ import (
 	"prestasi-mahasiswa/app"
 	"prestasi-mahasiswa/config"
 	"prestasi-mahasiswa/database"
+
+	_ "prestasi-mahasiswa/docs" // Swagger docs
 )
 
 func main() {

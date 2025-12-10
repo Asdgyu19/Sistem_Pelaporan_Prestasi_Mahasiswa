@@ -10,6 +10,8 @@ import (
 	"prestasi-mahasiswa/service"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type App struct {
@@ -70,6 +72,9 @@ func (a *App) initMiddleware() {
 	a.Router.Use(middleware.CORS())
 	a.Router.Use(middleware.RequestLogger())
 	a.Router.Use(middleware.Recovery())
+
+	// Setup Swagger documentation
+	a.Router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
 
 func (a *App) initRoutes() {
@@ -78,18 +83,22 @@ func (a *App) initRoutes() {
 	registerService := service.NewRegisterService(a.DB)
 	achievementService := service.NewAchievementService(a.DB, a.MongoDB)
 	fileService := service.NewFileService(a.MongoDB)
-	userService := service.NewUserService(a.DB)                                       // Add user service
-	refreshTokenService := service.NewRefreshTokenService(a.DB, loginService.JWTUtil) // Add refresh token service
+	userService := service.NewUserService(a.DB)
+	refreshTokenService := service.NewRefreshTokenService(a.DB, loginService.JWTUtil)
+	reportService := service.NewReportService(a.DB)
 
 	// Initialize helpers
 	healthHelper := helper.NewHealthHelper(a.DB, a.MongoDB)
 	authHelper := helper.NewAuthHelper(loginService, registerService, refreshTokenService)
 	achievementHelper := helper.NewAchievementHelper(achievementService, fileService)
-	userHelper := helper.NewUserHelper()                      // Basic user profile helper
-	adminUserHelper := helper.NewAdminUserHelper(userService) // Admin user management helper
+	userHelper := helper.NewUserHelper()
+	adminUserHelper := helper.NewAdminUserHelper(userService)
+	studentHelper := helper.NewStudentHelper(userService, achievementService)
+	lecturerHelper := helper.NewLecturerHelper(userService)
+	reportHelper := helper.NewReportHelper(reportService)
 
 	// Setup all routes using separate route files with JWT secret
-	route.SetupRoutes(a.Router, a.Config.JWT.Secret, healthHelper, authHelper, achievementHelper, userHelper, adminUserHelper)
+	route.SetupRoutes(a.Router, a.Config.JWT.Secret, healthHelper, authHelper, achievementHelper, userHelper, adminUserHelper, studentHelper, lecturerHelper, reportHelper)
 }
 
 func (a *App) Run() error {

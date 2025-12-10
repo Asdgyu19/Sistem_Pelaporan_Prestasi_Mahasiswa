@@ -19,7 +19,19 @@ func NewAdminUserHelper(userService *service.UserService) *AdminUserHelper {
 	}
 }
 
-// Get all users with filters
+// GetAllUsers godoc
+// @Tags Users (Admin)
+// @Summary List all users
+// @Description Get list of all users with optional filters (admin only)
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param role query string false "Filter by role (mahasiswa, dosen_wali, admin)"
+// @Param search query string false "Search by name or email"
+// @Param include_deleted query bool false "Include deleted users"
+// @Success 200 {object} object
+// @Failure 500 {object} object
+// @Router /admin/users [get]
 func (h *AdminUserHelper) GetAllUsers(c *gin.Context) {
 	role := c.Query("role")
 	search := c.Query("search")
@@ -45,7 +57,17 @@ func (h *AdminUserHelper) GetAllUsers(c *gin.Context) {
 	})
 }
 
-// Get user by ID
+// GetUserByID godoc
+// @Tags Users (Admin)
+// @Summary Get user details
+// @Description Get detailed information for a specific user (admin only)
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "User ID"
+// @Success 200 {object} object
+// @Failure 404 {object} object
+// @Router /admin/users/{id} [get]
 func (h *AdminUserHelper) GetUserByID(c *gin.Context) {
 	userID := c.Param("id")
 
@@ -74,7 +96,17 @@ func (h *AdminUserHelper) GetUserByID(c *gin.Context) {
 	})
 }
 
-// Create new user
+// CreateUser godoc
+// @Tags Users (Admin)
+// @Summary Create new user
+// @Description Create a new user account (admin only)
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body object true "User creation details"
+// @Success 201 {object} object
+// @Failure 400 {object} object
+// @Router /admin/users [post]
 func (h *AdminUserHelper) CreateUser(c *gin.Context) {
 	var req service.CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -103,7 +135,18 @@ func (h *AdminUserHelper) CreateUser(c *gin.Context) {
 	})
 }
 
-// Update user
+// UpdateUser godoc
+// @Tags Users (Admin)
+// @Summary Update user information
+// @Description Update user details (admin only)
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "User ID"
+// @Param request body object true "Updated user information"
+// @Success 200 {object} object
+// @Failure 404 {object} object
+// @Router /admin/users/{id} [put]
 func (h *AdminUserHelper) UpdateUser(c *gin.Context) {
 	userID := c.Param("id")
 
@@ -142,7 +185,17 @@ func (h *AdminUserHelper) UpdateUser(c *gin.Context) {
 	})
 }
 
-// Delete user (soft delete)
+// DeleteUser godoc
+// @Tags Users (Admin)
+// @Summary Delete user
+// @Description Soft delete a user account (admin only)
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "User ID"
+// @Success 200 {object} object
+// @Failure 404 {object} object
+// @Router /admin/users/{id} [delete]
 func (h *AdminUserHelper) DeleteUser(c *gin.Context) {
 	userID := c.Param("id")
 
@@ -170,7 +223,18 @@ func (h *AdminUserHelper) DeleteUser(c *gin.Context) {
 	})
 }
 
-// Change user role
+// ChangeUserRole godoc
+// @Tags Users (Admin)
+// @Summary Change user role
+// @Description Change a user's role (admin only)
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path string true "User ID"
+// @Param request body object true "New role"
+// @Success 200 {object} object
+// @Failure 404 {object} object
+// @Router /admin/users/{id}/role [put]
 func (h *AdminUserHelper) ChangeUserRole(c *gin.Context) {
 	userID := c.Param("id")
 

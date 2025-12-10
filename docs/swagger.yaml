@@ -1,0 +1,980 @@
+basePath: /api/v1
+host: localhost:8080
+info:
+  contact:
+    name: API Support
+  description: Backend API untuk Student Achievement Reporting System dengan JWT authentication
+    dan role-based access control
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Sistem Pelaporan Prestasi Mahasiswa API
+  version: 1.0.0
+paths:
+  /achievements:
+    get:
+      consumes:
+      - application/json
+      description: Get list of achievements (filtered by user role)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List achievements
+      tags:
+      - Achievements
+    post:
+      consumes:
+      - application/json
+      description: Create new achievement (Mahasiswa only)
+      parameters:
+      - description: Achievement request
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create new achievement
+      tags:
+      - Achievements
+  /achievements/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an achievement (Mahasiswa only)
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete achievement
+      tags:
+      - Achievements
+    get:
+      consumes:
+      - application/json
+      description: Get specific achievement details
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get achievement details
+      tags:
+      - Achievements
+    put:
+      consumes:
+      - application/json
+      description: Update achievement (Mahasiswa only)
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Achievement request
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update achievement
+      tags:
+      - Achievements
+  /achievements/{id}/files:
+    get:
+      consumes:
+      - application/json
+      description: Get list of files for an achievement
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get achievement files
+      tags:
+      - Achievements
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload supporting document for achievement
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload file to achievement
+      tags:
+      - Achievements
+  /achievements/{id}/files/{fileId}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a file from an achievement
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: File ID
+        in: path
+        name: fileId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete achievement file
+      tags:
+      - Achievements
+  /achievements/{id}/files/{fileId}/download:
+    get:
+      consumes:
+      - application/json
+      description: Download/stream file from an achievement
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: File ID
+        in: path
+        name: fileId
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Download achievement file
+      tags:
+      - Achievements
+  /achievements/{id}/reject:
+    post:
+      consumes:
+      - application/json
+      description: Reject an achievement with reason (dosen/admin only)
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Rejection reason
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Reject achievement
+      tags:
+      - Achievements
+  /achievements/{id}/submit:
+    post:
+      consumes:
+      - application/json
+      description: Submit achievement to be verified by dosen/admin
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Submit achievement for verification
+      tags:
+      - Achievements
+  /achievements/{id}/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verify/approve an achievement (dosen/admin only)
+      parameters:
+      - description: Achievement ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Verify achievement
+      tags:
+      - Achievements
+  /admin/users:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all users with optional filters (admin only)
+      parameters:
+      - description: Filter by role (mahasiswa, dosen_wali, admin)
+        in: query
+        name: role
+        type: string
+      - description: Search by name or email
+        in: query
+        name: search
+        type: string
+      - description: Include deleted users
+        in: query
+        name: include_deleted
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List all users
+      tags:
+      - Users (Admin)
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account (admin only)
+      parameters:
+      - description: User creation details
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create new user
+      tags:
+      - Users (Admin)
+  /admin/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Soft delete a user account (admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - Users (Admin)
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information for a specific user (admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user details
+      tags:
+      - Users (Admin)
+    put:
+      consumes:
+      - application/json
+      description: Update user details (admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated user information
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user information
+      tags:
+      - Users (Admin)
+  /admin/users/{id}/role:
+    put:
+      consumes:
+      - application/json
+      description: Change a user's role (admin only)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New role
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Change user role
+      tags:
+      - Users (Admin)
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password, returns JWT tokens
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+      summary: User login
+      tags:
+      - Authentication
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout current session and revoke tokens
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Logout user
+      tags:
+      - Authentication
+  /auth/profile:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve profile of authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - Authentication
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get new access token using refresh token
+      parameters:
+      - description: Refresh token request
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+      summary: Refresh access token
+      tags:
+      - Authentication
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register new user account
+      parameters:
+      - description: Register request
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+      summary: User registration
+      tags:
+      - Authentication
+  /lecturers:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all dosen_wali (lecturers/advisors)
+      parameters:
+      - description: Search by name
+        in: query
+        name: search
+        type: string
+      - default: "1"
+        description: Page number
+        in: query
+        name: page
+        type: string
+      - default: "10"
+        description: Items per page
+        in: query
+        name: limit
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: List all lecturers
+      tags:
+      - Lecturers
+  /lecturers/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a specific lecturer's profile
+      parameters:
+      - description: Lecturer ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      summary: Get lecturer profile
+      tags:
+      - Lecturers
+  /lecturers/{id}/advisees:
+    get:
+      consumes:
+      - application/json
+      description: Get list of students advised by a specific lecturer
+      parameters:
+      - description: Lecturer ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      summary: Get lecturer's advisees
+      tags:
+      - Lecturers
+  /reports/statistics:
+    get:
+      consumes:
+      - application/json
+      description: Get overall system statistics (admin/dosen only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get system statistics
+      tags:
+      - Reports
+  /reports/student/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get comprehensive achievement report for a specific student
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get student achievement report
+      tags:
+      - Reports
+  /students:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all mahasiswa (students) with optional search filter
+      parameters:
+      - description: Search by name or NIM
+        in: query
+        name: search
+        type: string
+      - default: "1"
+        description: Page number
+        in: query
+        name: page
+        type: string
+      - default: "10"
+        description: Items per page
+        in: query
+        name: limit
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: List all students
+      tags:
+      - Students
+  /students/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a specific student's public profile
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      summary: Get student profile
+      tags:
+      - Students
+  /students/{id}/achievements:
+    get:
+      consumes:
+      - application/json
+      description: Get all achievements for a specific student
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      summary: Get student achievements
+      tags:
+      - Students
+  /students/{id}/advisor:
+    put:
+      consumes:
+      - application/json
+      description: Assign a dosen_wali (advisor) to a student (student can only assign
+        to themselves)
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Advisor ID
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Assign advisor to student
+      tags:
+      - Students
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all users (admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List all users
+      tags:
+      - Users
+  /users/profile:
+    get:
+      consumes:
+      - application/json
+      description: Get current authenticated user's profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user profile
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Update current authenticated user's profile information
+      parameters:
+      - description: Updated profile information
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - Users
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: '"Bearer <token>"'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
