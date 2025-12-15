@@ -22,15 +22,6 @@ func NewAchievementHelper(achievementSvc *service.AchievementService, fileSvc *s
 }
 
 // GetAchievements godoc
-// @Tags Achievements
-// @Summary List achievements
-// @Description Get list of achievements (filtered by user role)
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Success 200 {object} object
-// @Failure 401 {object} object
-// @Router /achievements [get]
 func (h *AchievementHelper) GetAchievements(c *gin.Context) {
 	// Check user role from middleware
 	userRole, exists := c.Get("user_role")
@@ -69,16 +60,7 @@ func (h *AchievementHelper) GetAchievements(c *gin.Context) {
 	})
 }
 
-// CreateAchievement godoc
-// @Tags Achievements
-// @Summary Create new achievement
-// @Description Create new achievement (Mahasiswa only)
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param request body object true "Achievement request"
-// @Success 201 {object} object
-// @Failure 400 {object} object
+
 // @Router /achievements [post]
 func (h *AchievementHelper) CreateAchievement(c *gin.Context) {
 	// Get mahasiswa ID from JWT token
@@ -128,17 +110,7 @@ func (h *AchievementHelper) CreateAchievement(c *gin.Context) {
 	})
 }
 
-// GetAchievement godoc
-// @Tags Achievements
-// @Summary Get achievement details
-// @Description Get specific achievement details
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Achievement ID"
-// @Success 200 {object} object
-// @Failure 404 {object} object
-// @Router /achievements/{id} [get]
+
 func (h *AchievementHelper) GetAchievement(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -170,16 +142,6 @@ func (h *AchievementHelper) GetAchievement(c *gin.Context) {
 }
 
 // UpdateAchievement godoc
-// @Tags Achievements
-// @Summary Update achievement
-// @Description Update achievement (Mahasiswa only)
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Achievement ID"
-// @Param request body object true "Achievement request"
-// @Success 200 {object} object
-// @Router /achievements/{id} [put]
 func (h *AchievementHelper) UpdateAchievement(c *gin.Context) {
 	id := c.Param("id")
 	var achievement service.Achievement
@@ -200,16 +162,6 @@ func (h *AchievementHelper) UpdateAchievement(c *gin.Context) {
 }
 
 // DeleteAchievement godoc
-// @Tags Achievements
-// @Summary Delete achievement
-// @Description Delete an achievement (Mahasiswa only)
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Achievement ID"
-// @Success 200 {object} object
-// @Failure 404 {object} object
-// @Router /achievements/{id} [delete]
 func (h *AchievementHelper) DeleteAchievement(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.AchievementService.DeleteAchievement(id); err != nil {
@@ -224,17 +176,6 @@ func (h *AchievementHelper) DeleteAchievement(c *gin.Context) {
 }
 
 // UploadFile godoc
-// @Tags Achievements
-// @Summary Upload file to achievement
-// @Description Upload supporting document for achievement
-// @Accept multipart/form-data
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Achievement ID"
-// @Param file formData file true "File to upload"
-// @Success 201 {object} object
-// @Failure 400 {object} object
-// @Router /achievements/{id}/files [post]
 func (h *AchievementHelper) UploadFile(c *gin.Context) {
 	achievementID := c.Param("id")
 	if achievementID == "" {
@@ -326,16 +267,6 @@ func (h *AchievementHelper) UploadFile(c *gin.Context) {
 }
 
 // GetFiles godoc
-// @Tags Achievements
-// @Summary Get achievement files
-// @Description Get list of files for an achievement
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Achievement ID"
-// @Success 200 {object} object
-// @Failure 404 {object} object
-// @Router /achievements/{id}/files [get]
 func (h *AchievementHelper) GetFiles(c *gin.Context) {
 	achievementID := c.Param("id")
 	if achievementID == "" {
@@ -391,17 +322,6 @@ func (h *AchievementHelper) GetFiles(c *gin.Context) {
 }
 
 // DeleteFile godoc
-// @Tags Achievements
-// @Summary Delete achievement file
-// @Description Delete a file from an achievement
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Achievement ID"
-// @Param fileId path string true "File ID"
-// @Success 200 {object} object
-// @Failure 403 {object} object
-// @Router /achievements/{id}/files/{fileId} [delete]
 func (h *AchievementHelper) DeleteFile(c *gin.Context) {
 	achievementID := c.Param("id")
 	fileID := c.Param("fileId")
@@ -453,17 +373,6 @@ func (h *AchievementHelper) DeleteFile(c *gin.Context) {
 }
 
 // DownloadFile godoc
-// @Tags Achievements
-// @Summary Download achievement file
-// @Description Download/stream file from an achievement
-// @Accept json
-// @Produce octet-stream
-// @Security BearerAuth
-// @Param id path string true "Achievement ID"
-// @Param fileId path string true "File ID"
-// @Success 200 {file} file
-// @Failure 403 {object} object
-// @Router /achievements/{id}/files/{fileId}/download [get]
 func (h *AchievementHelper) DownloadFile(c *gin.Context) {
 	achievementID := c.Param("id")
 	fileID := c.Param("fileId")
@@ -518,16 +427,6 @@ func (h *AchievementHelper) DownloadFile(c *gin.Context) {
 }
 
 // SubmitAchievement godoc
-// @Tags Achievements
-// @Summary Submit achievement for verification
-// @Description Submit achievement to be verified by dosen/admin
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Achievement ID"
-// @Success 200 {object} object
-// @Failure 403 {object} object
-// @Router /achievements/{id}/submit [post]
 func (h *AchievementHelper) SubmitAchievement(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -554,17 +453,7 @@ func (h *AchievementHelper) SubmitAchievement(c *gin.Context) {
 	})
 }
 
-// VerifyAchievement godoc
-// @Tags Achievements
-// @Summary Verify achievement
-// @Description Verify/approve an achievement (dosen/admin only)
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Achievement ID"
-// @Success 200 {object} object
-// @Failure 403 {object} object
-// @Router /achievements/{id}/verify [post]
+// SubmitAchievement godoc
 func (h *AchievementHelper) VerifyAchievement(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -593,17 +482,6 @@ func (h *AchievementHelper) VerifyAchievement(c *gin.Context) {
 }
 
 // RejectAchievement godoc
-// @Tags Achievements
-// @Summary Reject achievement
-// @Description Reject an achievement with reason (dosen/admin only)
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Achievement ID"
-// @Param request body object true "Rejection reason"
-// @Success 200 {object} object
-// @Failure 403 {object} object
-// @Router /achievements/{id}/reject [post]
 func (h *AchievementHelper) RejectAchievement(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
