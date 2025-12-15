@@ -22,16 +22,7 @@ func NewAuthHelper(loginSvc *service.LoginService, registerSvc *service.Register
 	}
 }
 
-// Login godoc
-// @Tags Authentication
-// @Summary User login
-// @Description Authenticate user with email and password, returns JWT tokens
-// @Accept json
-// @Produce json
-// @Param request body object true "Login request"
-// @Success 200 {object} object
-// @Failure 401 {object} object
-// @Router /auth/login [post]
+// Login 
 func (h *AuthHelper) Login(c *gin.Context) {
 	var req struct {
 		Email    string `json:"email"`
@@ -80,16 +71,7 @@ func (h *AuthHelper) Login(c *gin.Context) {
 	})
 }
 
-// Register godoc
-// @Tags Authentication
-// @Summary User registration
-// @Description Register new user account
-// @Accept json
-// @Produce json
-// @Param request body object true "Register request"
-// @Success 201 {object} object
-// @Failure 400 {object} object
-// @Router /auth/register [post]
+// Register 
 func (h *AuthHelper) Register(c *gin.Context) {
 	var req struct {
 		NIM      string `json:"nim"`
@@ -120,16 +102,7 @@ func (h *AuthHelper) Register(c *gin.Context) {
 	})
 }
 
-// Logout godoc
-// @Tags Authentication
-// @Summary Logout user
-// @Description Logout current session and revoke tokens
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Success 200 {object} object
-// @Failure 401 {object} object
-// @Router /auth/logout [post]
+// Logout 
 func (h *AuthHelper) Logout(c *gin.Context) {
 	// Extract user ID from token (if available)
 	authHeader := c.GetHeader("Authorization")
@@ -155,15 +128,6 @@ func (h *AuthHelper) Logout(c *gin.Context) {
 }
 
 // GetProfile godoc
-// @Tags Authentication
-// @Summary Get current user profile
-// @Description Retrieve profile of authenticated user
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Success 200 {object} object
-// @Failure 401 {object} object
-// @Router /auth/profile [get]
 func (h *AuthHelper) GetProfile(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
@@ -184,16 +148,7 @@ func (h *AuthHelper) GetProfile(c *gin.Context) {
 	})
 }
 
-// RefreshToken godoc
-// @Tags Authentication
-// @Summary Refresh access token
-// @Description Get new access token using refresh token
-// @Accept json
-// @Produce json
-// @Param request body object true "Refresh token request"
-// @Success 200 {object} object
-// @Failure 401 {object} object
-// @Router /auth/refresh [post]
+// RefreshToken handles token refreshing
 func (h *AuthHelper) RefreshToken(c *gin.Context) {
 	var req service.RefreshTokenRequest
 

@@ -16,16 +16,7 @@ func NewReportHelper(reportService *service.ReportService) *ReportHelper {
 	}
 }
 
-// GetSystemStatistics godoc
-// @Tags Reports
-// @Summary Get system statistics
-// @Description Get overall system statistics (admin/dosen only)
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Success 200 {object} object
-// @Failure 500 {object} object
-// @Router /reports/statistics [get]
+// GetSystemStatistics 
 func (h *ReportHelper) GetSystemStatistics(c *gin.Context) {
 	stats, err := h.ReportService.GetSystemStatistics()
 	if err != nil {
@@ -39,17 +30,7 @@ func (h *ReportHelper) GetSystemStatistics(c *gin.Context) {
 	})
 }
 
-// GetStudentReport godoc
-// @Tags Reports
-// @Summary Get student achievement report
-// @Description Get comprehensive achievement report for a specific student
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Student ID"
-// @Success 200 {object} object
-// @Failure 404 {object} object
-// @Router /reports/student/{id} [get]
+// GetStudentReport
 func (h *ReportHelper) GetStudentReport(c *gin.Context) {
 	studentID := c.Param("id")
 	if studentID == "" {

@@ -18,18 +18,7 @@ func NewStudentHelper(userService *service.UserService, achievementService *serv
 	}
 }
 
-// GetStudents godoc
-// @Tags Students
-// @Summary List all students
-// @Description Get list of all mahasiswa (students) with optional search filter
-// @Accept json
-// @Produce json
-// @Param search query string false "Search by name or NIM"
-// @Param page query string false "Page number" default(1)
-// @Param limit query string false "Items per page" default(10)
-// @Success 200 {object} object
-// @Failure 500 {object} object
-// @Router /students [get]
+// GetStudents 
 func (h *StudentHelper) GetStudents(c *gin.Context) {
 	// Get filter parameters
 	search := c.Query("search")
@@ -51,16 +40,7 @@ func (h *StudentHelper) GetStudents(c *gin.Context) {
 	})
 }
 
-// GetStudent godoc
-// @Tags Students
-// @Summary Get student profile
-// @Description Get a specific student's public profile
-// @Accept json
-// @Produce json
-// @Param id path string true "Student ID"
-// @Success 200 {object} object
-// @Failure 404 {object} object
-// @Router /students/{id} [get]
+// GetStudent 
 func (h *StudentHelper) GetStudent(c *gin.Context) {
 	studentID := c.Param("id")
 	if studentID == "" {
@@ -86,16 +66,7 @@ func (h *StudentHelper) GetStudent(c *gin.Context) {
 	})
 }
 
-// GetStudentAchievements godoc
-// @Tags Students
-// @Summary Get student achievements
-// @Description Get all achievements for a specific student
-// @Accept json
-// @Produce json
-// @Param id path string true "Student ID"
-// @Success 200 {object} object
-// @Failure 404 {object} object
-// @Router /students/{id}/achievements [get]
+// GetStudent 
 func (h *StudentHelper) GetStudentAchievements(c *gin.Context) {
 	studentID := c.Param("id")
 	if studentID == "" {
@@ -130,18 +101,7 @@ func (h *StudentHelper) GetStudentAchievements(c *gin.Context) {
 	})
 }
 
-// AssignAdvisor godoc
-// @Tags Students
-// @Summary Assign advisor to student
-// @Description Assign a dosen_wali (advisor) to a student (student can only assign to themselves)
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param id path string true "Student ID"
-// @Param request body object true "Advisor ID"
-// @Success 200 {object} object
-// @Failure 403 {object} object
-// @Router /students/{id}/advisor [put]
+// AssignAdvisor
 func (h *StudentHelper) AssignAdvisor(c *gin.Context) {
 	studentID := c.Param("id")
 	if studentID == "" {

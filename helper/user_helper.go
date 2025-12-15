@@ -12,16 +12,7 @@ func NewUserHelper() *UserHelper {
 	return &UserHelper{}
 }
 
-// GetProfile godoc
-// @Tags Users
-// @Summary Get user profile
-// @Description Get current authenticated user's profile
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Success 200 {object} object
-// @Failure 401 {object} object
-// @Router /users/profile [get]
+// GetProfile 
 func (h *UserHelper) GetProfile(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "Get user profile endpoint - Coming soon",
@@ -29,17 +20,7 @@ func (h *UserHelper) GetProfile(c *gin.Context) {
 	})
 }
 
-// UpdateProfile godoc
-// @Tags Users
-// @Summary Update user profile
-// @Description Update current authenticated user's profile information
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Param request body object true "Updated profile information"
-// @Success 200 {object} object
-// @Failure 401 {object} object
-// @Router /users/profile [put]
+// GetProfile 
 func (h *UserHelper) UpdateProfile(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "Update user profile endpoint - Coming soon",
@@ -47,16 +28,7 @@ func (h *UserHelper) UpdateProfile(c *gin.Context) {
 	})
 }
 
-// GetUsers godoc
-// @Tags Users
-// @Summary List all users
-// @Description Get list of all users (admin only)
-// @Accept json
-// @Produce json
-// @Security BearerAuth
-// @Success 200 {object} object
-// @Failure 403 {object} object
-// @Router /users [get]
+// GetUsers
 func (h *UserHelper) GetUsers(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "Get all users endpoint (admin only) - Coming soon",

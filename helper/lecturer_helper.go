@@ -16,18 +16,7 @@ func NewLecturerHelper(userService *service.UserService) *LecturerHelper {
 	}
 }
 
-// GetLecturers godoc
-// @Tags Lecturers
-// @Summary List all lecturers
-// @Description Get list of all dosen_wali (lecturers/advisors)
-// @Accept json
-// @Produce json
-// @Param search query string false "Search by name"
-// @Param page query string false "Page number" default(1)
-// @Param limit query string false "Items per page" default(10)
-// @Success 200 {object} object
-// @Failure 500 {object} object
-// @Router /lecturers [get]
+// GetLecturers 
 func (h *LecturerHelper) GetLecturers(c *gin.Context) {
 	search := c.Query("search")
 	page := c.DefaultQuery("page", "1")
@@ -48,16 +37,7 @@ func (h *LecturerHelper) GetLecturers(c *gin.Context) {
 	})
 }
 
-// GetLecturer godoc
-// @Tags Lecturers
-// @Summary Get lecturer profile
-// @Description Get a specific lecturer's profile
-// @Accept json
-// @Produce json
-// @Param id path string true "Lecturer ID"
-// @Success 200 {object} object
-// @Failure 404 {object} object
-// @Router /lecturers/{id} [get]
+// GetLecturer
 func (h *LecturerHelper) GetLecturer(c *gin.Context) {
 	lecturerID := c.Param("id")
 	if lecturerID == "" {
@@ -83,16 +63,7 @@ func (h *LecturerHelper) GetLecturer(c *gin.Context) {
 	})
 }
 
-// GetLecturerAdvisees godoc
-// @Tags Lecturers
-// @Summary Get lecturer's advisees
-// @Description Get list of students advised by a specific lecturer
-// @Accept json
-// @Produce json
-// @Param id path string true "Lecturer ID"
-// @Success 200 {object} object
-// @Failure 404 {object} object
-// @Router /lecturers/{id}/advisees [get]
+// GetLecturerAdvisees
 func (h *LecturerHelper) GetLecturerAdvisees(c *gin.Context) {
 	lecturerID := c.Param("id")
 	if lecturerID == "" {
