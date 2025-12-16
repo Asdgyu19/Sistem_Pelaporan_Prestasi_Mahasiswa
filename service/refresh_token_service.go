@@ -15,7 +15,7 @@ type RefreshTokenService struct {
 }
 
 type RefreshToken struct {
-	ID         int        `json:"id"`
+	ID         string     `json:"id"`
 	UserID     string     `json:"user_id"`
 	TokenHash  string     `json:"token_hash"`
 	ExpiresAt  time.Time  `json:"expires_at"`
@@ -164,7 +164,7 @@ func (rts *RefreshTokenService) RefreshTokens(tokenString string, ipAddress, use
 }
 
 // RevokeRefreshToken marks refresh token as revoked
-func (rts *RefreshTokenService) RevokeRefreshToken(tokenID int) error {
+func (rts *RefreshTokenService) RevokeRefreshToken(tokenID string) error {
 	query := `
 		UPDATE refresh_tokens
 		SET is_revoked = true, revoked_at = CURRENT_TIMESTAMP
@@ -197,7 +197,7 @@ func (rts *RefreshTokenService) RevokeUserRefreshTokens(userID string) error {
 }
 
 // UpdateLastUsed updates the last used timestamp and metadata
-func (rts *RefreshTokenService) UpdateLastUsed(tokenID int, ipAddress, userAgent *string) error {
+func (rts *RefreshTokenService) UpdateLastUsed(tokenID string, ipAddress, userAgent *string) error {
 	query := `
 		UPDATE refresh_tokens
 		SET last_used_at = CURRENT_TIMESTAMP, ip_address = $2, user_agent = $3

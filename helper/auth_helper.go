@@ -22,7 +22,7 @@ func NewAuthHelper(loginSvc *service.LoginService, registerSvc *service.Register
 	}
 }
 
-// Login 
+// Login
 func (h *AuthHelper) Login(c *gin.Context) {
 	var req struct {
 		Email    string `json:"email"`
@@ -71,7 +71,7 @@ func (h *AuthHelper) Login(c *gin.Context) {
 	})
 }
 
-// Register 
+// Register
 func (h *AuthHelper) Register(c *gin.Context) {
 	var req struct {
 		NIM      string `json:"nim"`
@@ -102,7 +102,7 @@ func (h *AuthHelper) Register(c *gin.Context) {
 	})
 }
 
-// Logout 
+// Logout
 func (h *AuthHelper) Logout(c *gin.Context) {
 	// Extract user ID from token (if available)
 	authHeader := c.GetHeader("Authorization")
@@ -264,7 +264,7 @@ func (h *AuthHelper) GetActiveTokens(c *gin.Context) {
 
 	// Remove sensitive token hash from response
 	type TokenInfo struct {
-		ID         int        `json:"id"`
+		ID         string     `json:"id"`
 		CreatedAt  time.Time  `json:"created_at"`
 		LastUsedAt *time.Time `json:"last_used_at"`
 		ExpiresAt  time.Time  `json:"expires_at"`

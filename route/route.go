@@ -34,13 +34,16 @@ func SetupRoutes(router *gin.Engine,
 	// API v1 routes group
 	v1 := router.Group("/api/v1")
 	{
-		// Public routes (no authentication required)
-		setupAuthRoutes(v1, authHelper)
+		// Public auth routes (no authentication required)
+		setupPublicAuthRoutes(v1, authHelper)
 
 		// Protected routes (authentication required)
 		protected := v1.Group("")
 		protected.Use(middleware.AuthMiddleware(jwtSecret))
 		{
+			// Protected auth routes
+			setupProtectedAuthRoutes(protected, authHelper)
+
 			// Setup achievement routes (role-based access)
 			setupAchievementRoutes(protected, achievementHelper)
 
@@ -58,20 +61,26 @@ func SetupRoutes(router *gin.Engine,
 	}
 }
 
-// setupAuthRoutes configures authentication routes
-func setupAuthRoutes(rg *gin.RouterGroup, authHelper *helper.AuthHelper) {
+// setupPublicAuthRoutes configures public authentication routes (no auth required)
+func setupPublicAuthRoutes(rg *gin.RouterGroup, authHelper *helper.AuthHelper) {
 	auth := rg.Group("/auth")
 	{
-		// Public authentication routes
 		auth.POST("/login", authHelper.Login)
 		auth.POST("/register", authHelper.Register)
 		auth.POST("/refresh", authHelper.RefreshToken)      // Refresh access token using refresh token
 		auth.POST("/revoke", authHelper.RevokeRefreshToken) // Revoke specific refresh token
+	}
+}
 
+// setupProtectedAuthRoutes configures protected authentication routes (auth required)
+func setupProtectedAuthRoutes(rg *gin.RouterGroup, authHelper *helper.AuthHelper) {
+	auth := rg.Group("/auth")
+	{
 		// Protected authentication routes (require valid access token)
 		auth.POST("/logout", authHelper.Logout)               // Logout current session and revoke all tokens
 		auth.POST("/logout-all", authHelper.LogoutAllDevices) // Logout from all devices
 		auth.GET("/tokens", authHelper.GetActiveTokens)       // Get list of active refresh tokens
+		auth.GET("/profile", authHelper.GetProfile)           // Get current user profile
 	}
 }
 

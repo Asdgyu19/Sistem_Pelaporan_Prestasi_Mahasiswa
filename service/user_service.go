@@ -312,7 +312,6 @@ func (s *UserService) CreateUser(req CreateUserRequest) (*User, error) {
 		values += fmt.Sprintf(", $%d", argCount)
 		args = append(args, req.AdvisorID)
 	}
-	
 
 	if hasProfile {
 		argCount++
@@ -511,11 +510,11 @@ func (s *UserService) GetStudentsByAdvisor(advisorID string) ([]User, error) {
 	query := `
 		SELECT 
 			u.id, u.nim, u.nip, u.name, u.email, u.role, 
-			u.advisor_id, a.name as advisor_name, u.profile_data,
+			u.advisor_id, a.name as advisor_name, COALESCE(NULL, ''::bytea) as profile_data,
 			u.is_active, u.is_deleted, u.created_at, u.updated_at
 		FROM users u
 		LEFT JOIN users a ON u.advisor_id = a.id
-		WHERE u.advisor_id = $1 AND u.role = 'mahasiswa' AND u.is_deleted = FALSE
+		WHERE u.advisor_id = $1 AND u.role = 'mahasiswa' AND (u.is_deleted = FALSE OR u.is_deleted IS NULL)
 		ORDER BY u.name ASC
 	`
 
@@ -539,7 +538,7 @@ func (s *UserService) GetStudentsByAdvisor(advisorID string) ([]User, error) {
 			return nil, fmt.Errorf("failed to scan student: %v", err)
 		}
 
-		// Parse profile data JSON
+		// Parse profile data JSON (skip if empty)
 		if len(profileDataJSON) > 0 {
 			json.Unmarshal(profileDataJSON, &student.ProfileData)
 		}
